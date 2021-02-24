@@ -1,6 +1,6 @@
 
 import React, {useState} from 'react';
-import { StyleSheet, Text, View , FlatList } from 'react-native';
+import { StyleSheet, Text, View , FlatList , Alert } from 'react-native';
 import {Navbar} from './src/Navbar'
 import { MainScreen } from './src/screens/MainScreen';
 import { TodoScreen } from './src/screens/TodoScreen';
@@ -23,16 +23,45 @@ export default function App() {
   }
 
   const removeTodo= id => {
-    setTodos(prev => prev.filter(todo => todo.id !== id))
+    const todo = todos.find(t => t.id === id)
+    Alert.alert(
+      'Delete ',
+      `Are you sure to delete '${todo.title}'`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        { text: 'Delete', 
+        onPress: () => {
+          setTodoId(null)
+          setTodos(prev => prev.filter(todo => todo.id !== id))
+        } }
+      ],
+      { cancelable: false }
+    );
+
+
+    
   }
 
-  let content = (
+ const updateTodo = (id,title) => {
+    setTodos(old => old.map(todo =>{
+       if (todo.id === id){
+         todo.title = title
+       }
+       return todo
+    }))
+ }
+  
+ 
+ let content = (
     <MainScreen todos={todos} addTodo={addTodo} removeTodo={removeTodo} openTodo={setTodoId} />
   )
 
 if(todoId) {
   const selectedTodo= todos.find(todo => todo.id === todoId)
-  content = <TodoScreen goBack={() => setTodoId(null)} todo={selectedTodo}  />
+  content = <TodoScreen onRemove={removeTodo} goBack={() => setTodoId(null)} todo={selectedTodo} onSave={updateTodo}  />
 } 
 
 
